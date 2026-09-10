@@ -1,9 +1,9 @@
 """Launch A2.2 LPF node under the student's GitHub-username namespace.
 
-Loads parameters from share/a2_solution/config/params.yaml.
+Loads parameters from share/a2_new_member/config/params.yaml.
 
 Usage:
-    ros2 launch a2_solution lpf.launch.py github_user:=<your-handle>
+    ros2 launch a2_new_member lpf.launch.py github_user:=<your-handle>
 """
 import os
 
@@ -17,7 +17,7 @@ from launch_ros.actions import Node
 def generate_launch_description():
     github_user = LaunchConfiguration('github_user')
     params_file = os.path.join(
-        get_package_share_directory('a2_solution'), 'config', 'params.yaml'
+        get_package_share_directory('a2_new_member'), 'config', 'params.yaml'
     )
     return LaunchDescription([
         DeclareLaunchArgument(
@@ -25,7 +25,7 @@ def generate_launch_description():
             description='Your GitHub username; used as the ROS namespace.',
         ),
         Node(
-            package='a2_solution',
+            package='a2_new_member',
             executable='lpf_node',
             name='lpf_node',
             namespace=github_user,

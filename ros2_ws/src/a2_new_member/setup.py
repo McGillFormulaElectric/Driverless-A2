@@ -1,7 +1,7 @@
 from setuptools import setup
 from glob import glob
 
-package_name = 'a2_solution'
+package_name = 'a2_new_member'
 
 setup(
     name=package_name,
@@ -17,13 +17,13 @@ setup(
     zip_safe=True,
     maintainer='Student',
     maintainer_email='student@example.com',
-    description='MFE A2 student solution.',
+    description='MFE A2 student new_member.',
     license='MIT',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'hello_publisher = a2_solution.hello_publisher:main',
-            'lpf_node = a2_solution.lpf_node:main',
+            'hello_publisher = a2_new_member.hello_publisher:main',
+            'lpf_node = a2_new_member.lpf_node:main',
         ],
     },
 )

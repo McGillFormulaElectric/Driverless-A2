@@ -42,7 +42,7 @@ cd docker
 export GITHUB_USER=<your-github-handle>          # required
 export A2_NEIL_HOST=<neil tailnet host>          # e.g. neil.tail1234.ts.net
 docker compose build
-docker compose run --rm solution
+docker compose run --rm new_member
 ```
 
 Inside the container you'll have `/workspace` mounted to `ros2_ws/`. Build and source:
@@ -61,10 +61,10 @@ source install/setup.bash
 
 **Goal:** publish the string `Hello World!` on `/${GITHUB_USER}/hello` at 1 Hz.
 
-The template is already written for you in `ros2_ws/src/a2_solution/a2_solution/hello_publisher.py`. You just need to launch it with your GitHub username as the ROS namespace:
+The template is already written for you in `ros2_ws/src/a2_new_member/a2_new_member/hello_publisher.py`. You just need to launch it with your GitHub username as the ROS namespace:
 
 ```bash
-ros2 launch a2_solution hello.launch.py github_user:=$GITHUB_USER
+ros2 launch a2_new_member hello.launch.py github_user:=$GITHUB_USER
 ```
 
 Neil's grader is watching for any topic matching `/<user>/hello` (type `std_msgs/String`). When it sees `Hello World!` from your namespace, it will publish on `/neil/feedback`:
@@ -105,13 +105,13 @@ This is the same "exponential moving average" you'll see in most sensor pipeline
 - Smith, *The Scientist and Engineer's Guide to DSP*, [Ch. 19 — Recursive Filters](https://www.dspguide.com/ch19.htm) (free online).
 
 ### Where to put your code
-Open `ros2_ws/src/a2_solution/a2_solution/lpf_node.py`. There's a `TODO` block inside `_on_signal`. Replace the stub with the IIR recurrence above.
+Open `ros2_ws/src/a2_new_member/a2_new_member/lpf_node.py`. There's a `TODO` block inside `_on_signal`. Replace the stub with the IIR recurrence above.
 
 ### Run it
 ```bash
 colcon build --symlink-install
 source install/setup.bash
-ros2 launch a2_solution lpf.launch.py github_user:=$GITHUB_USER
+ros2 launch a2_new_member lpf.launch.py github_user:=$GITHUB_USER
 ```
 
 ### How grading works
@@ -181,7 +181,7 @@ Driverless-A2/
 ├── docker/                    # Dockerfile, compose, CycloneDDS config, entrypoint
 ├── ros2_ws/
 │   └── src/
-│       ├── a2_solution/       # your template — this is where you write code
+│       ├── a2_new_member/       # your template — this is where you write code
 │       └── a2_neil/           # for reference; not run by students
 └── README.md
 ```
@@ -213,7 +213,7 @@ Committing screenshots to `submissions/` on your branch is only half the workflo
    - CI must be green (colcon build + tests pass).
    - Screenshots must show your handle in the feedback string.
    - On approval, they squash-merge the PR into `main`.
-6. Congrats — your custom node is now live in the class repo. Future students will see your solution as one of the reference implementations.
+6. Congrats — your custom node is now live in the class repo. Future students will see your new_member as one of the reference implementations.
 
 > **Why bother with a PR?** The PR is how you learn the real MFE workflow. Every change to `MFE-Driverless-V1` lands via PR + review — no exceptions. This assignment is your first practice PR; treat it as such.
 
@@ -221,7 +221,7 @@ Committing screenshots to `submissions/` on your branch is only half the workflo
 
 - Code compiles (green CI).
 - Node runs without exceptions inside the container.
-- Screenshots prove the auto-grader accepted your solution.
+- Screenshots prove the auto-grader accepted your new_member.
 - No secrets or personal paths committed.
 - Reasonable commit messages.
 
@@ -239,7 +239,7 @@ Committing screenshots to `submissions/` on your branch is only half the workflo
 The scenario constants (signal frequencies/amplitudes, noise, filter α, grader tolerances, timer periods) are exposed as ROS parameters and loaded from YAML at launch time. You should not need to edit them for the graded assignment, but tweaking them locally is a useful way to build intuition (e.g. crank up `noise_std` and watch your MSE climb).
 
 - Neil side: [`ros2_ws/src/a2_neil/config/params.yaml`](ros2_ws/src/a2_neil/config/params.yaml) — `signal_hz`, `f1`, `a1`, `f2`, `a2`, `noise_std`, `seed` (for `signal_publisher`); `alpha`, `match_window`, `mse_tolerance`, `discovery_period_s`, `grade_period_s` (for `grader`).
-- Solution side: [`ros2_ws/src/a2_solution/config/params.yaml`](ros2_ws/src/a2_solution/config/params.yaml) — `alpha` (fixed at `0.1` for grading; do **not** change for your submission).
+- Solution side: [`ros2_ws/src/a2_new_member/config/params.yaml`](ros2_ws/src/a2_new_member/config/params.yaml) — `alpha` (fixed at `0.1` for grading; do **not** change for your submission).
 
 The launch files (`neil.launch.py`, `lpf.launch.py`) pass the YAML file into each node via the `parameters=[...]` argument, so `ros2 launch` picks them up automatically.
 
@@ -250,7 +250,7 @@ The launch files (`neil.launch.py`, `lpf.launch.py`) pass the YAML file into eac
 If you want to run the whole stack (Neil's signal + grader + your LPF node) in one command — useful when hacking offline without Tailscale — use the composed launch:
 
 ```bash
-ros2 launch a2_solution bringup.launch.py github_user:=<your-handle>
+ros2 launch a2_new_member bringup.launch.py github_user:=<your-handle>
 ```
 
-This includes Neil's launch file (unnamespaced, so `/neil/signal` and `/neil/feedback` stay where the grader expects them) and your `lpf_node` under `PushRosNamespace(<your-handle>)`. For the real graded run over Tailscale you should still use `ros2 launch a2_solution lpf.launch.py` and let Neil's process own Neil's side.
+This includes Neil's launch file (unnamespaced, so `/neil/signal` and `/neil/feedback` stay where the grader expects them) and your `lpf_node` under `PushRosNamespace(<your-handle>)`. For the real graded run over Tailscale you should still use `ros2 launch a2_new_member lpf.launch.py` and let Neil's process own Neil's side.

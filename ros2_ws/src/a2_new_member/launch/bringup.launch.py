@@ -2,10 +2,10 @@
 
 Includes:
   - a2_neil/neil.launch.py         (NOT namespaced — it owns /neil/*)
-  - a2_solution/lpf.launch.py      (pushed under /<github_user>)
+  - a2_new_member/lpf.launch.py      (pushed under /<github_user>)
 
 Usage:
-    ros2 launch a2_solution bringup.launch.py github_user:=<your-handle>
+    ros2 launch a2_new_member bringup.launch.py github_user:=<your-handle>
 """
 import os
 
@@ -24,7 +24,7 @@ def generate_launch_description():
         get_package_share_directory('a2_neil'), 'launch', 'neil.launch.py'
     )
     student_launch = os.path.join(
-        get_package_share_directory('a2_solution'), 'launch', 'lpf.launch.py'
+        get_package_share_directory('a2_new_member'), 'launch', 'lpf.launch.py'
     )
 
     neil_group = GroupAction([

@@ -6,12 +6,12 @@ Filter spec (see README for theory):
     y[0] = x[0]
     alpha = 0.1   (fixed for grading; do NOT change)
 
-params: alpha (see a2_solution/config/params.yaml; the default 0.1 is fixed by
+params: alpha (see a2_new_member/config/params.yaml; the default 0.1 is fixed by
 the assignment and grader — do not change it).
 
 Run with your GitHub username as the ROS namespace:
 
-    ros2 run a2_solution lpf_node --ros-args -r __ns:=/<github-username>
+    ros2 run a2_new_member lpf_node --ros-args -r __ns:=/<github-username>
 """
 import rclpy
 from rclpy.node import Node
@@ -31,7 +31,7 @@ class LowPassFilterNode(Node):
 
         # Filter coefficient. Fixed by the assignment (grader uses 0.1); do NOT
         # change. Exposed as a ROS parameter for consistency with the rest of
-        # the scenario config (see a2_solution/config/params.yaml).
+        # the scenario config (see a2_new_member/config/params.yaml).
         self.declare_parameter('alpha', 0.1)
         self.alpha = float(self.get_parameter('alpha').value)
 
