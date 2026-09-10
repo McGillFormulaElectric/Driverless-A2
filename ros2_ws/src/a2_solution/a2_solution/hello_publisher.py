@@ -2,7 +2,7 @@
 
 Run with your GitHub username as the ROS namespace:
 
-    ros2 run a2_student hello_publisher --ros-args -r __ns:=/<github-username>
+    ros2 run a2_solution hello_publisher --ros-args -r __ns:=/<github-username>
 """
 import rclpy
 from rclpy.node import Node

@@ -1,7 +1,7 @@
 """Launch A2.1 hello publisher under the student's GitHub-username namespace.
 
 Usage:
-    ros2 launch a2_student hello.launch.py github_user:=<your-handle>
+    ros2 launch a2_solution hello.launch.py github_user:=<your-handle>
 """
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
@@ -17,7 +17,7 @@ def generate_launch_description():
             description='Your GitHub username; used as the ROS namespace.',
         ),
         Node(
-            package='a2_student',
+            package='a2_solution',
             executable='hello_publisher',
             name='hello_publisher',
             namespace=github_user,

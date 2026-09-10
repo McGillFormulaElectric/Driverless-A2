@@ -1,11 +1,11 @@
-"""Composed bring-up: professor stack + student LPF node.
+"""Composed bring-up: Neil's stack + student LPF node.
 
 Includes:
-  - a2_professor/professor.launch.py   (NOT namespaced — it owns /professor/*)
-  - a2_student/lpf.launch.py           (pushed under /<github_user>)
+  - a2_neil/neil.launch.py         (NOT namespaced — it owns /neil/*)
+  - a2_solution/lpf.launch.py      (pushed under /<github_user>)
 
 Usage:
-    ros2 launch a2_student bringup.launch.py github_user:=<your-handle>
+    ros2 launch a2_solution bringup.launch.py github_user:=<your-handle>
 """
 import os
 
@@ -20,17 +20,17 @@ from launch_ros.actions import PushRosNamespace
 def generate_launch_description():
     github_user = LaunchConfiguration('github_user')
 
-    professor_launch = os.path.join(
-        get_package_share_directory('a2_professor'), 'launch', 'professor.launch.py'
+    neil_launch = os.path.join(
+        get_package_share_directory('a2_neil'), 'launch', 'neil.launch.py'
     )
     student_launch = os.path.join(
-        get_package_share_directory('a2_student'), 'launch', 'lpf.launch.py'
+        get_package_share_directory('a2_solution'), 'launch', 'lpf.launch.py'
     )
 
-    professor_group = GroupAction([
-        # Professor publishes on absolute topics (/professor/signal,
-        # /professor/feedback) and must NOT be namespaced.
-        IncludeLaunchDescription(PythonLaunchDescriptionSource(professor_launch)),
+    neil_group = GroupAction([
+        # Neil's nodes publish on absolute topics (/neil/signal,
+        # /neil/feedback) and must NOT be namespaced.
+        IncludeLaunchDescription(PythonLaunchDescriptionSource(neil_launch)),
     ])
 
     student_group = GroupAction([
@@ -46,6 +46,6 @@ def generate_launch_description():
             'github_user',
             description='Your GitHub username; used as the ROS namespace for the student node.',
         ),
-        professor_group,
+        neil_group,
         student_group,
     ])

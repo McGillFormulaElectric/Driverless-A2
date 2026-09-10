@@ -1,7 +1,7 @@
-"""Publishes /professor/signal at signal_hz Hz.
+"""Publishes /neil/signal at signal_hz Hz.
 
 Signal = sum of two sinusoids + zero-mean Gaussian noise, deterministic given
-the seed (so grading is reproducible across restarts on the professor side).
+the seed (so grading is reproducible across restarts on Neil's side).
 
     x(t) = a1*sin(2*pi*f1*t) + a2*sin(2*pi*f2*t) + noise(t)
 
@@ -26,7 +26,7 @@ class SignalPublisher(Node):
     def __init__(self):
         super().__init__('signal_publisher')
 
-        # Scenario parameters (see a2_professor/config/params.yaml).
+        # Scenario parameters (see a2_neil/config/params.yaml).
         self.declare_parameter('signal_hz', 20.0)
         self.declare_parameter('f1', 0.5)
         self.declare_parameter('a1', 1.0)
@@ -43,12 +43,12 @@ class SignalPublisher(Node):
         self.noise_std = float(self.get_parameter('noise_std').value)
         self.seed = int(self.get_parameter('seed').value)
 
-        self.pub = self.create_publisher(Float32, '/professor/signal', RELIABLE_QOS)
+        self.pub = self.create_publisher(Float32, '/neil/signal', RELIABLE_QOS)
         self.timer = self.create_timer(1.0 / self.signal_hz, self._tick)
         self._rng = np.random.default_rng(self.seed)
         self._t0 = self.get_clock().now().nanoseconds * 1e-9
         self.get_logger().info(
-            f'Publishing /professor/signal @ {self.signal_hz:.1f} Hz '
+            f'Publishing /neil/signal @ {self.signal_hz:.1f} Hz '
             f'(f1={self.f1} Hz, f2={self.f2} Hz, noise_std={self.noise_std})'
         )
 

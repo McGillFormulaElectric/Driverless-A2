@@ -1,7 +1,7 @@
 from setuptools import setup
 from glob import glob
 
-package_name = 'a2_professor'
+package_name = 'a2_neil'
 
 setup(
     name=package_name,
@@ -15,15 +15,15 @@ setup(
     ],
     install_requires=['setuptools', 'numpy'],
     zip_safe=True,
-    maintainer='Professor',
-    maintainer_email='professor@example.com',
+    maintainer='Neil George',
+    maintainer_email='neilgeorge03@gmail.com',
     description='MFE A2 grader.',
     license='MIT',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'signal_publisher = a2_professor.signal_publisher:main',
-            'grader = a2_professor.grader:main',
+            'signal_publisher = a2_neil.signal_publisher:main',
+            'grader = a2_neil.grader:main',
         ],
     },
 )

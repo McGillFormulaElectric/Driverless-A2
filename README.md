@@ -2,12 +2,14 @@
 
 ![CI](https://github.com/McGillFormulaElectric/Driverless-A2/actions/workflows/ci.yml/badge.svg)
 
-This assignment introduces ROS 2 publishers, subscribers, namespaces, and running nodes together across a **shared class network** using Tailscale. It is split into two parts, [Advent-of-Code style](https://adventofcode.com/): Part 1 is a warm-up, Part 2 is the real challenge.
+This assignment introduces ROS 2 publishers, subscribers, namespaces, and running nodes together across a **shared class network** using Tailscale. It is split into two parts: Part 1 is a warm-up, Part 2 is the real challenge.
 
 - **A2.1** — publish `Hello World!` on your own namespaced topic.
-- **A2.2** — subscribe to the professor's noisy signal, filter it with a first-order IIR low-pass filter, and publish your filtered output. The professor's grader auto-discovers your topic and reports back on `/professor/feedback` whether you got it right.
+- **A2.2** — subscribe to Neil's noisy signal, filter it with a first-order IIR low-pass filter, and publish your filtered output. Neil's grader auto-discovers your topic and reports back on `/neil/feedback` whether you got it right.
 
-Everything runs inside a Docker container so your local OS and Python version don't matter.
+Everything runs inside a Docker container.
+
+> **Who is Neil?** This is a student-run onboarding series. Neil is the senior student who owns the reference `signal_publisher` and `grader` nodes for A2 — the "professor" role in previous iterations of this doc. Wherever the code or older notes say "professor", read "Neil".
 
 ---
 
@@ -25,11 +27,11 @@ git checkout <FirstNameLastName>
 ```
 
 ### 1.2 Tailscale (class VPN)
-The professor runs a ROS 2 node on the class Tailscale network. Every student joins the same tailnet so DDS discovery works between machines.
+Neil runs a ROS 2 node on the class Tailscale network. Every student joins the same tailnet so DDS discovery works between machines.
 
 1. Install Tailscale: <https://tailscale.com/download>.
-2. `sudo tailscale up` and sign in with the invite the professor sent.
-3. Verify you can reach the professor's node: `tailscale ping professor` (hostname will be shared in class).
+2. `sudo tailscale up` and sign in with the invite Neil sent.
+3. Verify you can reach Neil's node: `tailscale ping neil` (hostname will be shared in class).
 4. Note your own Tailscale hostname/IP — you'll set it via env var below if auto-detection fails.
 
 ### 1.3 Docker
@@ -38,9 +40,9 @@ Linux host with Docker + Docker Compose is the supported path (host networking +
 ```bash
 cd docker
 export GITHUB_USER=<your-github-handle>          # required
-export A2_PROFESSOR_HOST=<professor tailnet host>  # e.g. professor.tail1234.ts.net
+export A2_NEIL_HOST=<neil tailnet host>          # e.g. neil.tail1234.ts.net
 docker compose build
-docker compose run --rm student
+docker compose run --rm solution
 ```
 
 Inside the container you'll have `/workspace` mounted to `ros2_ws/`. Build and source:
@@ -51,7 +53,7 @@ colcon build --symlink-install
 source install/setup.bash
 ```
 
-> **macOS/Windows caveat:** Docker Desktop's `network_mode: host` is limited. If you're not on Linux, run the container with `--network host` on a Linux VM, or use Tailscale's [userspace networking mode](https://tailscale.com/kb/1112/userspace-networking) inside the container. Ask the professor for the current recommendation.
+> **macOS/Windows caveat:** Docker Desktop's `network_mode: host` is limited. If you're not on Linux, run the container with `--network host` on a Linux VM, or use Tailscale's [userspace networking mode](https://tailscale.com/kb/1112/userspace-networking) inside the container. Ask Neil for the current recommendation.
 
 ---
 
@@ -59,13 +61,13 @@ source install/setup.bash
 
 **Goal:** publish the string `Hello World!` on `/${GITHUB_USER}/hello` at 1 Hz.
 
-The template is already written for you in `ros2_ws/src/a2_student/a2_student/hello_publisher.py`. You just need to launch it with your GitHub username as the ROS namespace:
+The template is already written for you in `ros2_ws/src/a2_solution/a2_solution/hello_publisher.py`. You just need to launch it with your GitHub username as the ROS namespace:
 
 ```bash
-ros2 launch a2_student hello.launch.py github_user:=$GITHUB_USER
+ros2 launch a2_solution hello.launch.py github_user:=$GITHUB_USER
 ```
 
-The professor's grader is watching for any topic matching `/<user>/hello` (type `std_msgs/String`). When it sees `Hello World!` from your namespace, it will publish on `/professor/feedback`:
+Neil's grader is watching for any topic matching `/<user>/hello` (type `std_msgs/String`). When it sees `Hello World!` from your namespace, it will publish on `/neil/feedback`:
 
 ```
 Congrats <your-github-user>, the answer is correct
@@ -73,16 +75,16 @@ Congrats <your-github-user>, the answer is correct
 
 Watch the feedback live from another terminal (inside the container):
 ```bash
-ros2 topic echo /professor/feedback
+ros2 topic echo /neil/feedback
 ```
 
-**Deliverable for A2.1:** a screenshot of `/professor/feedback` congratulating your GitHub handle, committed to your branch under `submissions/a2_1_feedback.png`.
+**Deliverable for A2.1:** a screenshot of `/neil/feedback` congratulating your GitHub handle, committed to your branch under `submissions/a2_1_feedback.png`.
 
 ---
 
-## 3. A2.2 — Low-pass filter the professor's signal
+## 3. A2.2 — Low-pass filter Neil's signal
 
-The professor publishes a deterministic-but-noisy waveform on `/professor/signal` (`std_msgs/Float32`):
+Neil publishes a deterministic-but-noisy waveform on `/neil/signal` (`std_msgs/Float32`):
 
 ```
 x(t) = 1.0 * sin(2π * 0.5 * t) + 0.6 * sin(2π * 5.0 * t) + N(0, 0.3²)
@@ -103,21 +105,21 @@ This is the same "exponential moving average" you'll see in most sensor pipeline
 - Smith, *The Scientist and Engineer's Guide to DSP*, [Ch. 19 — Recursive Filters](https://www.dspguide.com/ch19.htm) (free online).
 
 ### Where to put your code
-Open `ros2_ws/src/a2_student/a2_student/lpf_node.py`. There's a `TODO` block inside `_on_signal`. Replace the stub with the IIR recurrence above.
+Open `ros2_ws/src/a2_solution/a2_solution/lpf_node.py`. There's a `TODO` block inside `_on_signal`. Replace the stub with the IIR recurrence above.
 
 ### Run it
 ```bash
 colcon build --symlink-install
 source install/setup.bash
-ros2 launch a2_student lpf.launch.py github_user:=$GITHUB_USER
+ros2 launch a2_solution lpf.launch.py github_user:=$GITHUB_USER
 ```
 
 ### How grading works
-The professor's grader:
-1. Subscribes to `/professor/signal` and runs **the same** LPF (α = 0.1, y[0] = x[0]) to build a reference sequence.
+Neil's grader:
+1. Subscribes to `/neil/signal` and runs **the same** LPF (α = 0.1, y[0] = x[0]) to build a reference sequence.
 2. Discovers any `/<user>/answer` topic on the network and buffers the last 200 samples per student.
 3. Matches student samples to the reference by nearest receive-time and computes MSE.
-4. If MSE < 0.02, publishes on `/professor/feedback`:
+4. If MSE < 0.02, publishes on `/neil/feedback`:
    ```
    Congrats <your-github-user>, the answer is correct (MSE=0.0034)
    ```
@@ -128,7 +130,7 @@ The professor's grader:
 
 Feedback is only republished when your verdict changes, so if your filter is wrong you'll only see one "incorrect" message per attempt.
 
-**Deliverable for A2.2:** screenshot of `/professor/feedback` congratulating your handle, committed as `submissions/a2_2_feedback.png`, plus your finished `lpf_node.py`.
+**Deliverable for A2.2:** screenshot of `/neil/feedback` congratulating your handle (MSE value visible), committed as `submissions/a2_2_feedback.png`, plus your finished `lpf_node.py`.
 
 ---
 
@@ -151,9 +153,9 @@ Download from <https://foxglove.dev/download> (free, works on Linux/macOS/Window
 1. Open Foxglove Studio → **Open connection…** → **Foxglove WebSocket**.
 2. URL: `ws://localhost:8765` (or `ws://<your-tailscale-host>:8765` from another machine on the tailnet).
 3. Add a **Plot** panel.
-   - Series 1: topic `/professor/signal`, path `data`, color red.
+   - Series 1: topic `/neil/signal`, path `data`, color red.
    - Series 2: topic `/${GITHUB_USER}/answer`, path `data`, color green.
-4. Add a **Raw Messages** panel on `/professor/feedback` to see verdicts as they arrive.
+4. Add a **Raw Messages** panel on `/neil/feedback` to see verdicts as they arrive.
 
 You should see the green (filtered) curve tracking the low-frequency component of the red (noisy) signal while attenuating the 5 Hz sinusoid — that's the LPF working.
 
@@ -163,12 +165,12 @@ You should see the green (filtered) curve tracking the low-frequency component o
 
 ## 5. Topic contract (summary)
 
-| Topic                 | Type              | Owner    | Purpose                           |
-| --------------------- | ----------------- | -------- | --------------------------------- |
-| `/professor/signal`   | `std_msgs/Float32` | Professor | Noisy input for A2.2              |
-| `/professor/feedback` | `std_msgs/String`  | Professor | Per-student grading verdict       |
-| `/<user>/hello`       | `std_msgs/String`  | Student  | A2.1 output                       |
-| `/<user>/answer`      | `std_msgs/Float32` | Student  | A2.2 output (your filtered signal) |
+| Topic              | Type              | Owner   | Purpose                            |
+| ------------------ | ----------------- | ------- | ---------------------------------- |
+| `/neil/signal`     | `std_msgs/Float32` | Neil    | Noisy input for A2.2               |
+| `/neil/feedback`   | `std_msgs/String`  | Neil    | Per-student grading verdict        |
+| `/<user>/hello`    | `std_msgs/String`  | Student | A2.1 output                        |
+| `/<user>/answer`   | `std_msgs/Float32` | Student | A2.2 output (your filtered signal) |
 
 ---
 
@@ -179,43 +181,76 @@ Driverless-A2/
 ├── docker/                    # Dockerfile, compose, CycloneDDS config, entrypoint
 ├── ros2_ws/
 │   └── src/
-│       ├── a2_student/        # your template — this is where you write code
-│       └── a2_professor/      # for reference; not run by students
+│       ├── a2_solution/       # your template — this is where you write code
+│       └── a2_neil/           # for reference; not run by students
 └── README.md
 ```
 
 ## 7. Troubleshooting
 
-- **`ros2 topic list` doesn't show `/professor/signal`.** DDS discovery isn't reaching the professor. Confirm `tailscale ping <professor-host>` works, that `A2_PROFESSOR_HOST` is set, and that `ROS_DOMAIN_ID` matches (`42`).
+- **`ros2 topic list` doesn't show `/neil/signal`.** DDS discovery isn't reaching Neil. Confirm `tailscale ping <neil-host>` works, that `A2_NEIL_HOST` is set, and that `ROS_DOMAIN_ID` matches (`42`).
 - **You see your own topics but no one else's.** Check `RMW_IMPLEMENTATION=rmw_cyclonedds_cpp` inside the container (`env | grep RMW`).
 - **Grader keeps saying incorrect.** Confirm α = 0.1, that you initialise `y[0] = x[0]` (not zero), and that you're publishing on `/<GITHUB_USER>/answer` (not `~answer` or `/answer`).
 
 ---
 
-## 8. Submission
-1. Commit your changes to your `FirstNameLastName` branch.
-2. Include both feedback screenshots in `submissions/`.
-3. Open a pull request against `main` when done.
+## 8. Submitting via Pull Request
+
+Committing screenshots to `submissions/` on your branch is only half the workflow. The class repo uses pull requests + review for every landed change, and this assignment is your first practice PR. Follow these steps end-to-end.
+
+1. Push your `FirstNameLastName` branch to GitHub:
+   ```bash
+   git push -u origin FirstNameLastName
+   ```
+2. On GitHub, open a PR from `<your-branch>` → `main`.
+3. **PR title:** `A2 submission — <Your Name>`.
+4. **PR body** must include:
+   - Your GitHub handle.
+   - The screenshot of `/neil/feedback` congratulating you for A2.1 (drag-and-drop into the PR body, or reference it as `![A2.1](submissions/a2_1_feedback.png)`).
+   - The screenshot for A2.2 with the MSE value visible.
+   - A one-paragraph reflection: what surprised you about DDS or the filter?
+5. Neil (or a designated senior) reviews the PR:
+   - CI must be green (colcon build + tests pass).
+   - Screenshots must show your handle in the feedback string.
+   - On approval, they squash-merge the PR into `main`.
+6. Congrats — your custom node is now live in the class repo. Future students will see your solution as one of the reference implementations.
+
+> **Why bother with a PR?** The PR is how you learn the real MFE workflow. Every change to `MFE-Driverless-V1` lands via PR + review — no exceptions. This assignment is your first practice PR; treat it as such.
+
+### What reviewers look for
+
+- Code compiles (green CI).
+- Node runs without exceptions inside the container.
+- Screenshots prove the auto-grader accepted your solution.
+- No secrets or personal paths committed.
+- Reasonable commit messages.
 
 ---
 
-## 9. Parameters
+## 9. Submission
+1. Commit your changes to your `FirstNameLastName` branch.
+2. Include both feedback screenshots in `submissions/`.
+3. Open a pull request against `main` when done (see section 8 for the full workflow).
+
+---
+
+## 10. Parameters
 
 The scenario constants (signal frequencies/amplitudes, noise, filter α, grader tolerances, timer periods) are exposed as ROS parameters and loaded from YAML at launch time. You should not need to edit them for the graded assignment, but tweaking them locally is a useful way to build intuition (e.g. crank up `noise_std` and watch your MSE climb).
 
-- Professor side: [`ros2_ws/src/a2_professor/config/params.yaml`](ros2_ws/src/a2_professor/config/params.yaml) — `signal_hz`, `f1`, `a1`, `f2`, `a2`, `noise_std`, `seed` (for `signal_publisher`); `alpha`, `match_window`, `mse_tolerance`, `discovery_period_s`, `grade_period_s` (for `grader`).
-- Student side: [`ros2_ws/src/a2_student/config/params.yaml`](ros2_ws/src/a2_student/config/params.yaml) — `alpha` (fixed at `0.1` for grading; do **not** change for your submission).
+- Neil side: [`ros2_ws/src/a2_neil/config/params.yaml`](ros2_ws/src/a2_neil/config/params.yaml) — `signal_hz`, `f1`, `a1`, `f2`, `a2`, `noise_std`, `seed` (for `signal_publisher`); `alpha`, `match_window`, `mse_tolerance`, `discovery_period_s`, `grade_period_s` (for `grader`).
+- Solution side: [`ros2_ws/src/a2_solution/config/params.yaml`](ros2_ws/src/a2_solution/config/params.yaml) — `alpha` (fixed at `0.1` for grading; do **not** change for your submission).
 
-The launch files (`professor.launch.py`, `lpf.launch.py`) pass the YAML file into each node via the `parameters=[...]` argument, so `ros2 launch` picks them up automatically.
+The launch files (`neil.launch.py`, `lpf.launch.py`) pass the YAML file into each node via the `parameters=[...]` argument, so `ros2 launch` picks them up automatically.
 
 ---
 
-## 10. Composed launch
+## 11. Composed launch
 
-If you want to run the whole stack (professor signal + grader + your LPF node) in one command — useful when hacking offline without Tailscale — use the composed launch:
+If you want to run the whole stack (Neil's signal + grader + your LPF node) in one command — useful when hacking offline without Tailscale — use the composed launch:
 
 ```bash
-ros2 launch a2_student bringup.launch.py github_user:=<your-handle>
+ros2 launch a2_solution bringup.launch.py github_user:=<your-handle>
 ```
 
-This includes the professor's launch file (unnamespaced, so `/professor/signal` and `/professor/feedback` stay where the grader expects them) and your `lpf_node` under `PushRosNamespace(<your-handle>)`. For the real graded run over Tailscale you should still use `ros2 launch a2_student lpf.launch.py` and let the professor's process own the professor side.
+This includes Neil's launch file (unnamespaced, so `/neil/signal` and `/neil/feedback` stay where the grader expects them) and your `lpf_node` under `PushRosNamespace(<your-handle>)`. For the real graded run over Tailscale you should still use `ros2 launch a2_solution lpf.launch.py` and let Neil's process own Neil's side.

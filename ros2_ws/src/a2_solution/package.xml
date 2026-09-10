@@ -1,14 +1,17 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>a2_professor</name>
+  <name>a2_solution</name>
   <version>0.1.0</version>
-  <description>MFE A2 professor side: reference signal publisher and auto-discovery grader.</description>
-  <maintainer email="professor@example.com">Professor</maintainer>
+  <description>MFE A2 student solution: hello publisher (A2.1) and IIR low-pass filter node (A2.2).</description>
+  <maintainer email="student@example.com">Student</maintainer>
   <license>MIT</license>
 
   <depend>rclpy</depend>
   <depend>std_msgs</depend>
+
+  <!-- bringup.launch.py includes neil.launch.py; only needed at runtime. -->
+  <exec_depend>a2_neil</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>

@@ -1,4 +1,4 @@
-"""A2.2 — subscribe to /professor/signal, apply a first-order IIR low-pass
+"""A2.2 — subscribe to /neil/signal, apply a first-order IIR low-pass
 filter, publish the filtered value on <namespace>/answer.
 
 Filter spec (see README for theory):
@@ -6,12 +6,12 @@ Filter spec (see README for theory):
     y[0] = x[0]
     alpha = 0.1   (fixed for grading; do NOT change)
 
-params: alpha (see a2_student/config/params.yaml; the default 0.1 is fixed by
+params: alpha (see a2_solution/config/params.yaml; the default 0.1 is fixed by
 the assignment and grader — do not change it).
 
 Run with your GitHub username as the ROS namespace:
 
-    ros2 run a2_student lpf_node --ros-args -r __ns:=/<github-username>
+    ros2 run a2_solution lpf_node --ros-args -r __ns:=/<github-username>
 """
 import rclpy
 from rclpy.node import Node
@@ -31,13 +31,13 @@ class LowPassFilterNode(Node):
 
         # Filter coefficient. Fixed by the assignment (grader uses 0.1); do NOT
         # change. Exposed as a ROS parameter for consistency with the rest of
-        # the scenario config (see a2_student/config/params.yaml).
+        # the scenario config (see a2_solution/config/params.yaml).
         self.declare_parameter('alpha', 0.1)
         self.alpha = float(self.get_parameter('alpha').value)
 
-        # Subscribe to the professor's noisy signal.
+        # Subscribe to Neil's noisy signal.
         self.sub = self.create_subscription(
-            Float32, '/professor/signal', self._on_signal, RELIABLE_QOS
+            Float32, '/neil/signal', self._on_signal, RELIABLE_QOS
         )
 
         # Publish your filtered answer on <namespace>/answer.
@@ -48,7 +48,7 @@ class LowPassFilterNode(Node):
 
         ns = self.get_namespace()
         self.get_logger().info(
-            f"Subscribed to /professor/signal, publishing filtered output on {ns}/answer"
+            f"Subscribed to /neil/signal, publishing filtered output on {ns}/answer"
         )
 
     def _on_signal(self, msg: Float32) -> None:

@@ -4,17 +4,17 @@ Periodically scans the ROS graph for topics matching:
   - /<user>/hello   (std_msgs/String)   -> A2.1
   - /<user>/answer  (std_msgs/Float32)  -> A2.2
 
-For each newly-seen topic it creates a subscription. It also subscribes to the
-professor's own /professor/signal so it can run the *reference* LPF and
-compare each student's stream against the expected output.
+For each newly-seen topic it creates a subscription. It also subscribes to
+Neil's own /neil/signal so it can run the *reference* LPF and compare each
+student's stream against the expected output.
 
-Feedback is published on /professor/feedback (std_msgs/String) as either:
+Feedback is published on /neil/feedback (std_msgs/String) as either:
     'Congrats <user>, the answer is correct'
     'Sorry <user>, the answer is incorrect'
 The message is only republished when a student transitions between states.
 
 params: alpha, match_window, mse_tolerance, discovery_period_s, grade_period_s
-        (see a2_professor/config/params.yaml).
+        (see a2_neil/config/params.yaml).
 """
 from __future__ import annotations
 
@@ -37,7 +37,7 @@ RELIABLE_QOS = QoSProfile(
 
 HELLO_RE = re.compile(r'^/([^/]+)/hello$')
 ANSWER_RE = re.compile(r'^/([^/]+)/answer$')
-RESERVED_USERS = {'professor'}
+RESERVED_USERS = {'neil'}
 
 
 @dataclass
@@ -55,7 +55,7 @@ class Grader(Node):
     def __init__(self):
         super().__init__('grader')
 
-        # Scenario parameters (see a2_professor/config/params.yaml).
+        # Scenario parameters (see a2_neil/config/params.yaml).
         self.declare_parameter('alpha', 0.1)
         self.declare_parameter('match_window', 200)
         self.declare_parameter('mse_tolerance', 0.02)
@@ -68,12 +68,12 @@ class Grader(Node):
         self.discovery_period_s = float(self.get_parameter('discovery_period_s').value)
         self.grade_period_s = float(self.get_parameter('grade_period_s').value)
 
-        self.feedback_pub = self.create_publisher(String, '/professor/feedback', RELIABLE_QOS)
+        self.feedback_pub = self.create_publisher(String, '/neil/feedback', RELIABLE_QOS)
 
         # Reference LPF state, computed from our own signal stream.
         self._ref_samples: Deque[tuple[float, float]] = deque(maxlen=self.match_window * 4)
         self._ref_y_prev: float | None = None
-        self.create_subscription(Float32, '/professor/signal', self._on_signal, RELIABLE_QOS)
+        self.create_subscription(Float32, '/neil/signal', self._on_signal, RELIABLE_QOS)
 
         self._hello: dict[str, HelloState] = {}
         self._hello_subs: dict[str, object] = {}
