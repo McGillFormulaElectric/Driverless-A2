@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       python3-colcon-common-extensions \
       python3-rosdep \
       ros-humble-rmw-cyclonedds-cpp \
+      ros-humble-foxglove-bridge \
       iproute2 \
       iputils-ping \
       curl \

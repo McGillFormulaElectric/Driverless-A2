@@ -10,6 +10,9 @@
   <depend>rclpy</depend>
   <depend>std_msgs</depend>
 
+  <!-- bringup.launch.py includes professor.launch.py; only needed at runtime. -->
+  <exec_depend>a2_professor</exec_depend>
+
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>

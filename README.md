@@ -1,5 +1,7 @@
 # MFE Driverless — Assignment 2: ROS 2 pub / sub over Tailscale
 
+![CI](https://github.com/McGillFormulaElectric/Driverless-A2/actions/workflows/ci.yml/badge.svg)
+
 This assignment introduces ROS 2 publishers, subscribers, namespaces, and running nodes together across a **shared class network** using Tailscale. It is split into two parts, [Advent-of-Code style](https://adventofcode.com/): Part 1 is a warm-up, Part 2 is the real challenge.
 
 - **A2.1** — publish `Hello World!` on your own namespaced topic.
@@ -130,7 +132,36 @@ Feedback is only republished when your verdict changes, so if your filter is wro
 
 ---
 
-## 4. Topic contract (summary)
+## 4. Visualizing with Foxglove Studio (optional but strongly recommended)
+
+Seeing the raw signal and your filtered signal on the same plot makes it obvious what your filter is doing wrong.
+
+### 4.1 Install the Foxglove bridge inside the container
+Already available in the image:
+```bash
+apt-get install -y ros-humble-foxglove-bridge   # only if you rebuild the image
+ros2 run foxglove_bridge foxglove_bridge port:=8765
+```
+Leave that terminal running.
+
+### 4.2 Install Foxglove Studio on your host
+Download from <https://foxglove.dev/download> (free, works on Linux/macOS/Windows).
+
+### 4.3 Connect
+1. Open Foxglove Studio → **Open connection…** → **Foxglove WebSocket**.
+2. URL: `ws://localhost:8765` (or `ws://<your-tailscale-host>:8765` from another machine on the tailnet).
+3. Add a **Plot** panel.
+   - Series 1: topic `/professor/signal`, path `data`, color red.
+   - Series 2: topic `/${GITHUB_USER}/answer`, path `data`, color green.
+4. Add a **Raw Messages** panel on `/professor/feedback` to see verdicts as they arrive.
+
+You should see the green (filtered) curve tracking the low-frequency component of the red (noisy) signal while attenuating the 5 Hz sinusoid — that's the LPF working.
+
+> Tip: save your Foxglove layout to `submissions/a2_layout.json` (**Layout → Export**) so future assignments can reuse it.
+
+---
+
+## 5. Topic contract (summary)
 
 | Topic                 | Type              | Owner    | Purpose                           |
 | --------------------- | ----------------- | -------- | --------------------------------- |
@@ -141,7 +172,7 @@ Feedback is only republished when your verdict changes, so if your filter is wro
 
 ---
 
-## 5. Layout
+## 6. Layout
 
 ```
 Driverless-A2/
@@ -153,7 +184,7 @@ Driverless-A2/
 └── README.md
 ```
 
-## 6. Troubleshooting
+## 7. Troubleshooting
 
 - **`ros2 topic list` doesn't show `/professor/signal`.** DDS discovery isn't reaching the professor. Confirm `tailscale ping <professor-host>` works, that `A2_PROFESSOR_HOST` is set, and that `ROS_DOMAIN_ID` matches (`42`).
 - **You see your own topics but no one else's.** Check `RMW_IMPLEMENTATION=rmw_cyclonedds_cpp` inside the container (`env | grep RMW`).
@@ -161,7 +192,30 @@ Driverless-A2/
 
 ---
 
-## 7. Submission
+## 8. Submission
 1. Commit your changes to your `FirstNameLastName` branch.
 2. Include both feedback screenshots in `submissions/`.
 3. Open a pull request against `main` when done.
+
+---
+
+## 9. Parameters
+
+The scenario constants (signal frequencies/amplitudes, noise, filter α, grader tolerances, timer periods) are exposed as ROS parameters and loaded from YAML at launch time. You should not need to edit them for the graded assignment, but tweaking them locally is a useful way to build intuition (e.g. crank up `noise_std` and watch your MSE climb).
+
+- Professor side: [`ros2_ws/src/a2_professor/config/params.yaml`](ros2_ws/src/a2_professor/config/params.yaml) — `signal_hz`, `f1`, `a1`, `f2`, `a2`, `noise_std`, `seed` (for `signal_publisher`); `alpha`, `match_window`, `mse_tolerance`, `discovery_period_s`, `grade_period_s` (for `grader`).
+- Student side: [`ros2_ws/src/a2_student/config/params.yaml`](ros2_ws/src/a2_student/config/params.yaml) — `alpha` (fixed at `0.1` for grading; do **not** change for your submission).
+
+The launch files (`professor.launch.py`, `lpf.launch.py`) pass the YAML file into each node via the `parameters=[...]` argument, so `ros2 launch` picks them up automatically.
+
+---
+
+## 10. Composed launch
+
+If you want to run the whole stack (professor signal + grader + your LPF node) in one command — useful when hacking offline without Tailscale — use the composed launch:
+
+```bash
+ros2 launch a2_student bringup.launch.py github_user:=<your-handle>
+```
+
+This includes the professor's launch file (unnamespaced, so `/professor/signal` and `/professor/feedback` stay where the grader expects them) and your `lpf_node` under `PushRosNamespace(<your-handle>)`. For the real graded run over Tailscale you should still use `ros2 launch a2_student lpf.launch.py` and let the professor's process own the professor side.
