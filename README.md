@@ -242,14 +242,3 @@ The scenario constants (signal frequencies/amplitudes, noise, filter α, grader 
 
 The launch files (`neil.launch.py`, `lpf.launch.py`) pass the YAML file into each node via the `parameters=[...]` argument, so `ros2 launch` picks them up automatically.
 
----
-
-## 11. Composed launch
-
-If you want to run the whole stack (Neil's signal + grader + your LPF node) in one command — useful when hacking offline without Tailscale — use the composed launch:
-
-```bash
-ros2 launch a2_new_member bringup.launch.py github_user:=<your-handle>
-```
-
-This includes Neil's launch file (unnamespaced, so `/neil/signal` and `/neil/feedback` stay where the grader expects them) and your `lpf_node` under `PushRosNamespace(<your-handle>)`. For the real graded run over Tailscale you should still use `ros2 launch a2_new_member lpf.launch.py` and let Neil's process own Neil's side.
