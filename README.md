@@ -73,10 +73,11 @@ Neil's grader is watching for any topic matching `/<user>/hello` (type `std_msgs
 Hello <your-github-user>
 ```
 
-Watch the feedback live from another terminal (inside the container):
+Watch the feedback live from another terminal (inside the container). `/neil/feedback` is shared by every student on the tailnet, so once the class is connected simultaneously you'll want to filter to just your own handle:
 ```bash
-ros2 topic echo /neil/feedback
+ros2 topic echo /neil/feedback | grep --line-buffered "$GITHUB_USER"
 ```
+(Drop the `grep` to see everyone's verdicts — useful for confirming the grader is alive at all.)
 
 **Deliverable for A2.1:** a screenshot of `/neil/feedback` congratulating your GitHub handle, committed to your branch under `submissions/a2_1_feedback.png`.
 
@@ -113,6 +114,8 @@ colcon build --symlink-install
 source install/setup.bash
 ros2 launch a2_new_member lpf.launch.py github_user:=$GITHUB_USER
 ```
+
+Watch your verdict the same way as A2.1 (see §2) — `ros2 topic echo /neil/feedback | grep --line-buffered "$GITHUB_USER"` in another terminal.
 
 ### How grading works
 Neil's grader:
