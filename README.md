@@ -61,7 +61,7 @@ source install/setup.bash
 
 **Goal:** publish the string `Hello World!` on `/${GITHUB_USER}/hello` at 1 Hz.
 
-The template is already written for you in `ros2_ws/src/a2_new_member/a2_new_member/hello_publisher.py`. You just need to launch it with your GitHub username as the ROS namespace:
+Open `ros2_ws/src/a2_new_member/a2_new_member/hello_publisher.py`. The node, publisher, and timer are already wired up — there's a `TODO` block inside `_tick` where you build a `std_msgs/String` with `data = "Hello World!"` and publish it on `self.pub`. Then launch it with your GitHub username as the ROS namespace:
 
 ```bash
 ros2 launch a2_new_member hello.launch.py github_user:=$GITHUB_USER
