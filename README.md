@@ -1,7 +1,5 @@
 # MFE Driverless — Assignment 2: ROS 2 pub / sub over Tailscale
 
-![CI](https://github.com/McGillFormulaElectric/Driverless-A2/actions/workflows/ci.yml/badge.svg)
-
 This assignment introduces ROS 2 publishers, subscribers, namespaces, and running nodes together across a **shared class network** using Tailscale. It is split into two parts: Part 1 is a warm-up, Part 2 is the real challenge.
 
 - **A2.1** — publish `Hello World!` on your own namespaced topic.
@@ -213,7 +211,6 @@ Committing screenshots to `submissions/` on your branch is only half the workflo
    - The screenshot for A2.2 with the MSE value visible.
    - A one-paragraph reflection: what surprised you about DDS or the filter?
 5. Neil (or a designated senior) reviews the PR:
-   - CI must be green (colcon build + tests pass).
    - Screenshots must show your handle in the feedback string.
    - On approval, they squash-merge the PR into `main`.
 6. Congrats — your custom node is now live in the class repo. Future students will see your new_member as one of the reference implementations.
@@ -222,7 +219,6 @@ Committing screenshots to `submissions/` on your branch is only half the workflo
 
 ### What reviewers look for
 
-- Code compiles (green CI).
 - Node runs without exceptions inside the container.
 - Screenshots prove the auto-grader accepted your new_member.
 - No secrets or personal paths committed.
