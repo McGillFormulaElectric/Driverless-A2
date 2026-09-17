@@ -59,9 +59,6 @@ class LowPassFilterNode(Node):
         #
         #   y[n] = self.alpha * x[n] + (1 - self.alpha) * y[n - 1]
         #
-        # Handle the first sample: y[0] = x[0].
-        # Store the new output in self._y_prev so the next callback can use it.
-        # Then publish `y` on `self.pub`.
         # ------------------------------------------------------------------
         y = x  # <-- replace this stub with the correct expression
 

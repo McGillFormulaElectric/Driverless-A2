@@ -61,7 +61,7 @@ source install/setup.bash
 
 **Goal:** publish the string `Hello World!` on `/${GITHUB_USER}/hello` at 1 Hz.
 
-Open `ros2_ws/src/a2_new_member/a2_new_member/hello_publisher.py`. The node, publisher, and timer are already wired up — there's a `TODO` block inside `_tick` where you build a `std_msgs/String` with `data = "Hello World!"` and publish it on `self.pub`. Then launch it with your GitHub username as the ROS namespace:
+Open `ros2_ws/src/a2_new_member/a2_new_member/hello_publisher.py`. The node, publisher, and timer are already wired up — there's a `TODO` block inside `_tick` where you build and publish a `std_msgs/String`. If you're new to ROS 2 publishers, see the [ROS2 Industrial Workshop — Simple Publisher/Subscriber](https://ros2-industrial-workshop.readthedocs.io/en/latest/_source/basics/ROS2-Simple-Publisher-Subscriber.html). Then launch it with your GitHub username as the ROS namespace:
 
 ```bash
 ros2 launch a2_new_member hello.launch.py github_user:=$GITHUB_USER
@@ -70,7 +70,7 @@ ros2 launch a2_new_member hello.launch.py github_user:=$GITHUB_USER
 Neil's grader is watching for any topic matching `/<user>/hello` (type `std_msgs/String`). When it sees `Hello World!` from your namespace, it will publish on `/neil/feedback`:
 
 ```
-Congrats <your-github-user>, the answer is correct
+Hello <your-github-user>
 ```
 
 Watch the feedback live from another terminal (inside the container):
@@ -121,14 +121,14 @@ Neil's grader:
 3. Matches student samples to the reference by nearest receive-time and computes MSE.
 4. If MSE < 0.02, publishes on `/neil/feedback`:
    ```
-   Congrats <your-github-user>, the answer is correct (MSE=0.0034)
+   Congratulations <your-github-user> you got the correct LPF value
    ```
    Otherwise:
    ```
    Sorry <your-github-user>, the answer is incorrect (MSE=0.4127)
    ```
 
-Feedback is only republished when your verdict changes, so if your filter is wrong you'll only see one "incorrect" message per attempt.
+Feedback is republished on every grading tick (~every 2s) while your `/answer` topic is live, so it always reflects your current state — fix your filter and you'll see it flip to "correct" without needing to restart anything.
 
 **Deliverable for A2.2:** screenshot of `/neil/feedback` congratulating your handle (MSE value visible), committed as `submissions/a2_2_feedback.png`, plus your finished `lpf_node.py`.
 
