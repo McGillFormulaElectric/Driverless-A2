@@ -49,7 +49,15 @@ else
   export A2_NETIF="${A2_NETIF:-eth0}"
 fi
 
+NEIL_IP="${A2_NEIL_HOST:-100.127.203.84}"
+
+# Set CycloneDDS config as inline XML so env vars expand correctly.
+# Point discovery unicast at Neil's Tailscale IP — packets route through
+# tailscale0 automatically when the interface exists.
+export CYCLONEDDS_URI="<CycloneDDS><Domain><Discovery><Peers><Peer address=\"${NEIL_IP}\"/></Peers></Discovery></Domain></CycloneDDS>"
+
 echo "[a2] ROS_DOMAIN_ID=${ROS_DOMAIN_ID}  RMW=${RMW_IMPLEMENTATION}  NETIF=${A2_NETIF}"
+echo "[a2] DDS peer → ${NEIL_IP}"
 if [ -n "${GITHUB_USER:-}" ]; then
   echo "[a2] GITHUB_USER=${GITHUB_USER}  →  your ROS namespace is /${GITHUB_USER}"
 fi
