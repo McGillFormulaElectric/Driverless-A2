@@ -212,10 +212,10 @@ Committing screenshots to `submissions/` on your branch is only half the workflo
    - A one-paragraph reflection: what surprised you about DDS or the filter?
 5. Neil (or a designated senior) reviews the PR:
    - Screenshots must show your handle in the feedback string.
-   - On approval, they squash-merge the PR into `main`.
-6. Congrats — your custom node is now live in the class repo. Future students will see your new_member as one of the reference implementations.
+   - On approval, they close the PR **without merging**.
+6. That's it — the PR is your record of having completed A2. It never lands on `main`: merging would ship your working `hello_publisher.py`/`lpf_node.py` as the template, handing the answer to every student who clones this repo afterward.
 
-> **Why bother with a PR?** The PR is how you learn the real MFE workflow. Every change to `MFE-Driverless-V1` lands via PR + review — no exceptions. This assignment is your first practice PR; treat it as such.
+> **Why bother with a PR if it doesn't merge?** The PR is how you practice the real MFE workflow — every change to `MFE-Driverless-V1` lands via PR + review, no exceptions. This assignment mimics that process end-to-end (branch, push, PR, review); the merge step is the one part intentionally skipped, so the template stays answer-free for the next student.
 
 ### What reviewers look for
 
