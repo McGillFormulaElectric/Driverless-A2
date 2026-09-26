@@ -1,7 +1,7 @@
 """Composed bring-up: Neil's stack + student LPF node.
 
 Includes:
-  - a2_neil/neil.launch.py         (NOT namespaced — it owns /neil/*)
+  - a2_neil/neil.launch.py         (NOT namespaced — it owns /grader/*)
   - a2_new_member/lpf.launch.py      (pushed under /<github_user>)
 
 Usage:
@@ -28,8 +28,8 @@ def generate_launch_description():
     )
 
     neil_group = GroupAction([
-        # Neil's nodes publish on absolute topics (/neil/signal,
-        # /neil/feedback) and must NOT be namespaced.
+        # Neil's nodes publish on absolute topics (/grader/signal,
+        # /grader/feedback) and must NOT be namespaced.
         IncludeLaunchDescription(PythonLaunchDescriptionSource(neil_launch)),
     ])
 

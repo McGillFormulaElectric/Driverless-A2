@@ -1,4 +1,4 @@
-"""A2.2 — subscribe to /neil/signal, apply a first-order IIR low-pass
+"""A2.2 — subscribe to /grader/signal, apply a first-order IIR low-pass
 filter, publish the filtered value on <namespace>/answer.
 
 Filter spec (see README for theory):
@@ -37,7 +37,7 @@ class LowPassFilterNode(Node):
 
         # Subscribe to Neil's noisy signal.
         self.sub = self.create_subscription(
-            Float32, '/neil/signal', self._on_signal, RELIABLE_QOS
+            Float32, '/grader/signal', self._on_signal, RELIABLE_QOS
         )
 
         # Publish your filtered answer on <namespace>/answer.
@@ -48,7 +48,7 @@ class LowPassFilterNode(Node):
 
         ns = self.get_namespace()
         self.get_logger().info(
-            f"Subscribed to /neil/signal, publishing filtered output on {ns}/answer"
+            f"Subscribed to /grader/signal, publishing filtered output on {ns}/answer"
         )
 
     def _on_signal(self, msg: Float32) -> None:
