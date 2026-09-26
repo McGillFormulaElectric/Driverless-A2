@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
 set -e
 
+# ---------------------------------------------------------------------------
+# Fix socket buffer for CycloneDDS/ROS2
+# ---------------------------------------------------------------------------
+# Increase UDP receive buffer for CycloneDDS
+sysctl -w net.core.rmem_max=1048576 2>/dev/null || true
+sysctl -w net.core.rmem_default=1048576 2>/dev/null || true
+sysctl -w net.core.wmem_max=1048576 2>/dev/null || true
+sysctl -w net.core.wmem_default=1048576 2>/dev/null || true
+
 # Source ROS 2
 source "/opt/ros/${ROS_DISTRO}/setup.bash"
 

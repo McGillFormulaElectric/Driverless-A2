@@ -1,13 +1,13 @@
-# MFE Driverless — Assignment 2: ROS 2 pub / sub over Tailscale
+# MFE Driverless — Assignment 2: ROS 2 pub / sub with Local Grading
 
-This assignment introduces ROS 2 publishers, subscribers, namespaces, and running nodes together across a **shared class network** using Tailscale. It is split into two parts: Part 1 is a warm-up, Part 2 is the real challenge.
+This assignment introduces ROS 2 publishers, subscribers, namespaces, and DDS discovery. It is split into two parts: Part 1 is a warm-up, Part 2 is the real challenge.
 
 - **A2.1** — publish `Hello World!` on your own namespaced topic.
-- **A2.2** — subscribe to Neil's noisy signal, filter it with a first-order IIR low-pass filter, and publish your filtered output. Neil's grader auto-discovers your topic and reports back on `/neil/feedback` whether you got it right.
+- **A2.2** — subscribe to a noisy signal, filter it with a first-order IIR low-pass filter, and publish your filtered output. The grader runs locally alongside your code and auto-discovers your topic, reporting back on `/neil/feedback` whether you got it right.
 
-Everything runs inside a Docker container.
+Everything runs inside a Docker container using `docker-compose-local.yml`.
 
-> **Who is Neil?** This is a student-run onboarding series. Neil is the senior student who owns the reference `signal_publisher` and `grader` nodes for A2 — the "professor" role in previous iterations of this doc. Wherever the code or older notes say "professor", read "Neil".
+> **Grading Setup** — The grader runs as a local Docker service alongside your student code. Both use host networking and ROS domain ID 42 for automatic DDS discovery.
 
 ---
 
@@ -24,26 +24,22 @@ cd Driverless-A2
 git checkout <FirstNameLastName>
 ```
 
-### 1.2 Tailscale (class VPN)
-Neil runs a ROS 2 node on the class Tailscale network. Every student joins the same tailnet so DDS discovery works between machines.
-
-1. Install Tailscale: <https://tailscale.com/download>.
-2. `sudo tailscale up` and sign in with the invite Neil sent.
-3. Verify you can reach Neil's node: `tailscale ping neil` (hostname will be shared in class).
-4. Note your own Tailscale hostname/IP — you'll set it via env var below if auto-detection fails.
-
-### 1.3 Docker
-Linux host with Docker + Docker Compose is the supported path (host networking + Tailscale interface work cleanly).
+### 1.2 Docker & Local Grading
+The grader runs as a local service inside Docker alongside your student code. Both use host networking and ROS domain ID 42 for automatic DDS discovery.
 
 ```bash
 cd docker
-export GITHUB_USER=<your-github-handle>          # required
-export A2_NEIL_HOST=<neil tailnet host>          # e.g. neil.tail1234.ts.net
-docker compose build
-docker compose run --rm new_member
+docker compose -f docker-compose-local.yml build
+docker compose -f docker-compose-local.yml up -d
 ```
 
-Inside the container you'll have `/workspace` mounted to `ros2_ws/`. Build and source:
+This starts two services:
+1. **student** — your code (subscriber + publisher)
+2. **grader** — reference implementation (signal publisher + grader)
+
+Both services share the same network and ROS domain, so topics auto-discover via DDS.
+
+Inside either container, the workspace is mounted at `/workspace` (your `ros2_ws`). Build and source:
 
 ```bash
 cd /workspace
@@ -51,7 +47,17 @@ colcon build --symlink-install
 source install/setup.bash
 ```
 
-> **macOS/Windows caveat:** Docker Desktop's `network_mode: host` is limited. If you're not on Linux, run the container with `--network host` on a Linux VM, or use Tailscale's [userspace networking mode](https://tailscale.com/kb/1112/userspace-networking) inside the container. Ask Neil for the current recommendation.
+View logs from either service:
+```bash
+docker compose -f docker-compose-local.yml logs student -f  # tail student logs
+docker compose -f docker-compose-local.yml logs grader -f   # tail grader logs
+docker compose -f docker-compose-local.yml logs             # both services
+```
+
+Stop everything:
+```bash
+docker compose -f docker-compose-local.yml down
+```
 
 ---
 
@@ -179,11 +185,20 @@ You should see the green (filtered) curve tracking the low-frequency component o
 
 ```
 Driverless-A2/
-├── docker/                    # Dockerfile, compose, CycloneDDS config, entrypoint
+├── docker/
+│   ├── docker-compose-local.yml  # Two services: student + grader
+│   ├── Dockerfile                # ROS2 Humble + dependencies
+│   ├── entrypoint.sh             # Startup script (socket buffer config)
+│   └── cyclonedds.xml            # DDS discovery config
 ├── ros2_ws/
 │   └── src/
-│       ├── a2_new_member/       # your template — this is where you write code
-│       └── a2_neil/           # for reference; not run by students
+│       ├── a2_new_member/        # your template — write code here
+│       └── a2_grader/            # grader (runs as local service in docker-compose)
+│           ├── a2_grader/        # Python package
+│           ├── config/           # params.yaml
+│           ├── launch/           # neil.launch.py
+│           ├── setup.py
+│           └── package.xml
 └── README.md
 ```
 
@@ -237,8 +252,8 @@ Committing screenshots to `submissions/` on your branch is only half the workflo
 
 The scenario constants (signal frequencies/amplitudes, noise, filter α, grader tolerances, timer periods) are exposed as ROS parameters and loaded from YAML at launch time. You should not need to edit them for the graded assignment, but tweaking them locally is a useful way to build intuition (e.g. crank up `noise_std` and watch your MSE climb).
 
-- Neil side: [`ros2_ws/src/a2_neil/config/params.yaml`](ros2_ws/src/a2_neil/config/params.yaml) — `signal_hz`, `f1`, `a1`, `f2`, `a2`, `noise_std`, `seed` (for `signal_publisher`); `alpha`, `match_window`, `mse_tolerance`, `discovery_period_s`, `grade_period_s` (for `grader`).
-- Solution side: [`ros2_ws/src/a2_new_member/config/params.yaml`](ros2_ws/src/a2_new_member/config/params.yaml) — `alpha` (fixed at `0.1` for grading; do **not** change for your submission).
+- Grader side: [`ros2_ws/src/a2_grader/config/params.yaml`](ros2_ws/src/a2_grader/config/params.yaml) — `signal_hz`, `f1`, `a1`, `f2`, `a2`, `noise_std`, `seed` (for `signal_publisher`); `alpha`, `match_window`, `mse_tolerance`, `discovery_period_s`, `grade_period_s` (for `grader`).
+- Student side: [`ros2_ws/src/a2_new_member/config/params.yaml`](ros2_ws/src/a2_new_member/config/params.yaml) — `alpha` (fixed at `0.1` for grading; do **not** change for your submission).
 
 The launch files (`neil.launch.py`, `lpf.launch.py`) pass the YAML file into each node via the `parameters=[...]` argument, so `ros2 launch` picks them up automatically.
 
