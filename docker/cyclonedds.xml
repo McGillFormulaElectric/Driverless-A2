@@ -9,15 +9,7 @@
     <Discovery>
       <ParticipantIndex>auto</ParticipantIndex>
       <MaxAutoParticipantIndex>100</MaxAutoParticipantIndex>
-      <Peers>
-        <Peer address="tcp/${A2_NEIL_HOST:-100.127.203.84}"/>
-      </Peers>
     </Discovery>
-    <Transports>
-      <Transport priority="default">
-        <Kind>tcp</Kind>
-      </Transport>
-    </Transports>
     <Internal>
       <SocketReceiveBufferSize min="1MB"/>
     </Internal>
