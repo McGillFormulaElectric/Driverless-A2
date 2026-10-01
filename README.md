@@ -225,3 +225,21 @@ Scenario constants are exposed as ROS parameters loaded from YAML at launch time
 
 Launch files automatically load parameters via the `parameters=[...]` argument.
 
+---
+
+## 🔴 NEIL REFERENCE
+
+**To view complete solutions for this assignment:**
+
+```bash
+# View the reference implementation on the solution branch
+git checkout solution/a2-personalized-hello
+
+# Or clone directly from the solution branch for testing
+git clone -b solution/a2-personalized-hello <repo-url>
+```
+
+**Solution Branch Reference:** [`solution/a2-personalized-hello`](https://github.com/McGillFormulaElectric/Driverless-A2/tree/solution/a2-personalized-hello)
+
+**Pull Request:** [PR #3 - A2 Solution](https://github.com/McGillFormulaElectric/Driverless-A2/pull/3)
+
