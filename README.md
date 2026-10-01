@@ -71,10 +71,10 @@ Open `ros2_ws/src/a2_new_member/a2_new_member/hello_publisher.py`. The node, pub
 ros2 launch a2_new_member hello.launch.py github_user:=$GITHUB_USER
 ```
 
-Neil's grader is watching for any topic matching `/<user>/hello` (type `std_msgs/String`). When it sees `Hello World!` from your namespace, it will publish on `/grader/feedback`:
+The grader watches for any topic matching `/<user>/hello` (type `std_msgs/String`). When it sees `Hello World!` from your namespace, it responds on `/grader/feedback`:
 
 ```
-Hello <your-github-user>
+Hello <your-github-user>, I see your hello world
 ```
 
 Watch the feedback live from another terminal (inside the container):
@@ -82,7 +82,7 @@ Watch the feedback live from another terminal (inside the container):
 ros2 topic echo /grader/feedback
 ```
 
-**Deliverable for A2.1:** a screenshot of `/grader/feedback` congratulating your GitHub handle, committed to your branch under `submissions/a2_1_feedback.png`.
+Grader confirms A2.1 is working when you see the personalized hello message.
 
 ---
 
@@ -118,25 +118,18 @@ source install/setup.bash
 ros2 launch a2_new_member lpf.launch.py github_user:=$GITHUB_USER
 ```
 
-Watch your verdict the same way as A2.1 (see §2) — `ros2 topic echo /grader/feedback` in another terminal.
+Watch the grading feedback in another terminal:
+```bash
+ros2 topic echo /grader/feedback
+```
 
-### How grading works
-Neil's grader:
-1. Subscribes to `/grader/signal` and runs **the same** LPF (α = 0.1, y[0] = x[0]) to build a reference sequence.
-2. Discovers any `/<user>/answer` topic on the network and buffers the last 200 samples per student.
-3. Matches student samples to the reference by nearest receive-time and computes MSE.
-4. If MSE < 0.02, publishes on `/grader/feedback`:
-   ```
-   Congratulations <your-github-user> you got the correct LPF value
-   ```
-   Otherwise:
-   ```
-   Sorry <your-github-user>, the answer is incorrect (MSE=0.4127)
-   ```
+**Grading criteria:**
+- Grader runs reference LPF (α = 0.1) on `/grader/signal`
+- Subscribes to `/<user>/answer` and buffers samples
+- Computes MSE between your output and reference
+- Publishes continuous feedback: `Congrats <user>, the answer is correct (MSE=0.007)`
 
-Feedback is republished on every grading tick (~every 2s) while your `/answer` topic is live, so it always reflects your current state — fix your filter and you'll see it flip to "correct" without needing to restart anything.
-
-**Deliverable for A2.2:** screenshot of `/grader/feedback` congratulating your handle (MSE value visible), committed as `submissions/a2_2_feedback.png`, plus your finished `lpf_node.py`.
+Feedback updates every ~2 seconds, so fix your filter and watch it update in real-time.
 
 ---
 
@@ -203,56 +196,32 @@ Driverless-A2/
 
 ## 7. Troubleshooting
 
-- **`ros2 topic list` doesn't show `/grader/signal`.** DDS discovery isn't working. Confirm both containers are running (`docker ps`), that `ROS_DOMAIN_ID=42` is set, and that both use `RMW_IMPLEMENTATION=rmw_cyclonedds_cpp`.
-- **You see your own topics but no one else's.** Check `RMW_IMPLEMENTATION=rmw_cyclonedds_cpp` inside the container (`env | grep RMW`).
-- **Grader keeps saying incorrect.** Confirm α = 0.1, that you initialise `y[0] = x[0]` (not zero), and that you're publishing on `/<GITHUB_USER>/answer` (not `~answer` or `/answer`).
+- **`ros2 topic list` doesn't show `/grader/signal`.** Ensure both grader and student are running in the container. Check `docker compose logs`.
+- **Topics visible but grader shows no feedback.** Verify your nodes are publishing to correct topics (`/<user>/hello` and `/<user>/answer`).
+- **Grader keeps saying incorrect.** Confirm α = 0.1, initialize `y[0] = x[0]` (not zero), and publishing on `/<GITHUB_USER>/answer`.
 
 ---
 
-## 8. Submitting via Pull Request
+## 8. Submission Checklist
 
-Committing screenshots to `submissions/` on your branch is only half the workflow. The class repo uses pull requests + review for every landed change, and this assignment is your first practice PR. Follow these steps end-to-end.
-
-1. Push your `FirstNameLastName` branch to GitHub:
-   ```bash
-   git push -u origin FirstNameLastName
-   ```
-2. On GitHub, open a PR from `<your-branch>` → `main`.
-3. **PR title:** `A2 submission — <Your Name>`.
-4. **PR body** must include:
-   - Your GitHub handle.
-   - The screenshot of `/grader/feedback` congratulating you for A2.1 (drag-and-drop into the PR body, or reference it as `![A2.1](submissions/a2_1_feedback.png)`).
-   - The screenshot for A2.2 with the MSE value visible.
-   - A one-paragraph reflection: what surprised you about DDS or the filter?
-5. Neil (or a designated senior) reviews the PR:
-   - Screenshots must show your handle in the feedback string.
-   - On approval, they close the PR **without merging**.
-6. That's it — the PR is your record of having completed A2. It never lands on `main`: merging would ship your working `hello_publisher.py`/`lpf_node.py` as the template, handing the answer to every student who clones this repo afterward.
-
-> **Why bother with a PR if it doesn't merge?** The PR is how you practice the real MFE workflow — every change to `MFE-Driverless-V1` lands via PR + review, no exceptions. This assignment mimics that process end-to-end (branch, push, PR, review); the merge step is the one part intentionally skipped, so the template stays answer-free for the next student.
-
-### What reviewers look for
-
-- Node runs without exceptions inside the container.
-- Screenshots prove the auto-grader accepted your new_member.
-- No secrets or personal paths committed.
-- Reasonable commit messages.
+- [ ] `hello_publisher.py` publishes `"Hello World!"` at 1 Hz on `/<user>/hello`
+- [ ] `lpf_node.py` implements IIR filter with α=0.1 on `/<user>/answer`
+- [ ] Both nodes launch automatically via `bringup.launch.py`
+- [ ] Grader feedback confirms both A2.1 and A2.2 are working
+- [ ] Code is committed to your branch
 
 ---
 
-## 9. Submission
-1. Commit your changes to your `FirstNameLastName` branch.
-2. Include both feedback screenshots in `submissions/`.
-3. Open a pull request against `main` when done (see section 8 for the full workflow).
+## 9. Parameters
 
----
+Scenario constants are exposed as ROS parameters loaded from YAML at launch time:
 
-## 10. Parameters
+- **Grader** [`ros2_ws/src/a2_grader/config/params.yaml`](ros2_ws/src/a2_grader/config/params.yaml):
+  - Signal: `signal_hz`, `f1`, `a1`, `f2`, `a2`, `noise_std`, `seed`
+  - Grading: `alpha`, `match_window`, `mse_tolerance`, `discovery_period_s`, `grade_period_s`
 
-The scenario constants (signal frequencies/amplitudes, noise, filter α, grader tolerances, timer periods) are exposed as ROS parameters and loaded from YAML at launch time. You should not need to edit them for the graded assignment, but tweaking them locally is a useful way to build intuition (e.g. crank up `noise_std` and watch your MSE climb).
+- **Student** [`ros2_ws/src/a2_new_member/config/params.yaml`](ros2_ws/src/a2_new_member/config/params.yaml):
+  - `alpha` (fixed at `0.1` for grading; do **not** change)
 
-- Grader side: [`ros2_ws/src/a2_grader/config/params.yaml`](ros2_ws/src/a2_grader/config/params.yaml) — `signal_hz`, `f1`, `a1`, `f2`, `a2`, `noise_std`, `seed` (for `signal_publisher`); `alpha`, `match_window`, `mse_tolerance`, `discovery_period_s`, `grade_period_s` (for `grader`).
-- Student side: [`ros2_ws/src/a2_new_member/config/params.yaml`](ros2_ws/src/a2_new_member/config/params.yaml) — `alpha` (fixed at `0.1` for grading; do **not** change for your submission).
-
-The launch files (`neil.launch.py`, `lpf.launch.py`) pass the YAML file into each node via the `parameters=[...]` argument, so `ros2 launch` picks them up automatically.
+Launch files automatically load parameters via the `parameters=[...]` argument.
 
