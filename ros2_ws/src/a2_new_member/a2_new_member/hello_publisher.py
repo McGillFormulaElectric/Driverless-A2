@@ -25,9 +25,9 @@ class HelloPublisher(Node):
         self.get_logger().info(f"Publishing 'Hello World!' on {ns}/hello")
 
     def _tick(self):
-        msg = String()
-        msg.data = 'Hello World!'
-        self.pub.publish(msg)
+        # TODO: create message
+        # TODO: set msg.data
+        # TODO: publish
 
 
 def main():

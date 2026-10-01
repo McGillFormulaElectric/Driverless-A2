@@ -55,11 +55,11 @@ class LowPassFilterNode(Node):
         x = float(msg.data)
 
         # First sample: initialize with the input value.
-        if self._y_prev is None:
-            y = x
-        else:
+        # Initialize on first sample
+            y = x  # TODO: implement filter
+        # TODO: apply filter
             # IIR low-pass filter: y[n] = alpha * x[n] + (1 - alpha) * y[n-1]
-            y = self.alpha * x + (1.0 - self.alpha) * self._y_prev
+            y = x  # TODO: implement IIR recurrence
 
         self._y_prev = y
 
