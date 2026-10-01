@@ -67,6 +67,7 @@ class LowPassFilterNode(Node):
         out = Float32()
         out.data = float(y)
         self.pub.publish(out)
+        self.get_logger().info(f"LPF: input={x:.4f} -> output={y:.4f}")
 
 
 def main():
