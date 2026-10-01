@@ -14,7 +14,7 @@ Feedback is published on /grader/feedback (std_msgs/String) as either:
 The message is only republished when a student transitions between states.
 
 params: alpha, match_window, mse_tolerance, discovery_period_s, grade_period_s
-        (see a2_neil/config/params.yaml).
+        (see a2_grader/config/params.yaml).
 """
 from __future__ import annotations
 
@@ -55,7 +55,7 @@ class Grader(Node):
     def __init__(self):
         super().__init__('grader')
 
-        # Scenario parameters (see a2_neil/config/params.yaml).
+        # Scenario parameters (see a2_grader/config/params.yaml).
         self.declare_parameter('alpha', 0.1)
         self.declare_parameter('match_window', 200)
         self.declare_parameter('mse_tolerance', 0.02)
@@ -131,10 +131,14 @@ class Grader(Node):
     def _make_hello_cb(self, user: str):
         def _cb(msg: String) -> None:
             state = self._hello[user]
-            verdict = 'correct' if msg.data == 'Hello World!' else 'incorrect'
-            if verdict != state.last_verdict:
-                state.last_verdict = verdict
-                self._publish_feedback(user, verdict)
+            if msg.data == 'Hello World!':
+                feedback_text = f'Hello {user}, I see your hello world'
+                self._publish_custom_feedback(feedback_text)
+                state.last_verdict = 'correct'
+            else:
+                feedback_text = f'Sorry {user}, expected "Hello World!" but got "{msg.data}"'
+                self._publish_custom_feedback(feedback_text)
+                state.last_verdict = 'incorrect'
         return _cb
 
     # --- A2.2 --------------------------------------------------------------
@@ -166,11 +170,17 @@ class Grader(Node):
 
             mse = float(np.mean((matched - stu_y) ** 2))
             verdict = 'correct' if mse < self.mse_tolerance else 'incorrect'
-            if verdict != state.last_verdict:
-                state.last_verdict = verdict
-                self._publish_feedback(user, verdict, extra=f'(MSE={mse:.4f})')
+            state.last_verdict = verdict
+            self._publish_feedback(user, verdict, extra=f'(MSE={mse:.4f})')
 
     # --- feedback ----------------------------------------------------------
+    def _publish_custom_feedback(self, text: str) -> None:
+        """Publish custom feedback text."""
+        msg = String()
+        msg.data = text
+        self.feedback_pub.publish(msg)
+        self.get_logger().info(text)
+
     def _publish_feedback(self, user: str, verdict: str, extra: str = '') -> None:
         if verdict == 'correct':
             text = f'Congrats {user}, the answer is correct'
