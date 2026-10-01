@@ -20,7 +20,6 @@ def generate_launch_description():
             package='a2_new_member',
             executable='hello_publisher',
             name='hello_publisher',
-            namespace=github_user,
             output='screen',
         ),
     ])

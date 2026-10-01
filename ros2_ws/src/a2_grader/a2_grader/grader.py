@@ -132,9 +132,8 @@ class Grader(Node):
         def _cb(msg: String) -> None:
             state = self._hello[user]
             verdict = 'correct' if msg.data == 'Hello World!' else 'incorrect'
-            if verdict != state.last_verdict:
-                state.last_verdict = verdict
-                self._publish_feedback(user, verdict)
+            state.last_verdict = verdict
+            self._publish_feedback(user, verdict)
         return _cb
 
     # --- A2.2 --------------------------------------------------------------
@@ -166,9 +165,8 @@ class Grader(Node):
 
             mse = float(np.mean((matched - stu_y) ** 2))
             verdict = 'correct' if mse < self.mse_tolerance else 'incorrect'
-            if verdict != state.last_verdict:
-                state.last_verdict = verdict
-                self._publish_feedback(user, verdict, extra=f'(MSE={mse:.4f})')
+            state.last_verdict = verdict
+            self._publish_feedback(user, verdict, extra=f'(MSE={mse:.4f})')
 
     # --- feedback ----------------------------------------------------------
     def _publish_feedback(self, user: str, verdict: str, extra: str = '') -> None:

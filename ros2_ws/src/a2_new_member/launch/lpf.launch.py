@@ -28,7 +28,6 @@ def generate_launch_description():
             package='a2_new_member',
             executable='lpf_node',
             name='lpf_node',
-            namespace=github_user,
             output='screen',
             parameters=[params_file],
         ),

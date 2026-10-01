@@ -21,7 +21,7 @@ def generate_launch_description():
     github_user = LaunchConfiguration('github_user')
 
     neil_launch = os.path.join(
-        get_package_share_directory('a2_grader'), 'launch', 'neil.launch.py'
+        get_package_share_directory('a2_grader'), 'launch', 'grader.launch.py'
     )
     student_launch = os.path.join(
         get_package_share_directory('a2_new_member'), 'launch', 'lpf.launch.py'
