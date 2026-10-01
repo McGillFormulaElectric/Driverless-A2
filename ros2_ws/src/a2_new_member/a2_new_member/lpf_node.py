@@ -54,13 +54,12 @@ class LowPassFilterNode(Node):
     def _on_signal(self, msg: Float32) -> None:
         x = float(msg.data)
 
-        # ------------------------------------------------------------------
-        # TODO(student): implement the IIR low-pass filter.
-        #
-        #   y[n] = self.alpha * x[n] + (1 - self.alpha) * y[n - 1]
-        #
-        # ------------------------------------------------------------------
-        y = x  # <-- replace this stub with the correct expression
+        # First sample: initialize with the input value.
+        if self._y_prev is None:
+            y = x
+        else:
+            # IIR low-pass filter: y[n] = alpha * x[n] + (1 - alpha) * y[n-1]
+            y = self.alpha * x + (1.0 - self.alpha) * self._y_prev
 
         self._y_prev = y
 
