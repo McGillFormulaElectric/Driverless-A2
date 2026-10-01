@@ -16,7 +16,7 @@ services:
         source /opt/ros/humble/setup.bash &&
         colcon build --symlink-install &&
         source install/setup.bash &&
-        ros2 launch a2_grader neil.launch.py &
+        ros2 launch a2_grader grader.launch.py &
         sleep 2 &&
         ros2 launch a2_new_member bringup.launch.py github_user:=student
       "
