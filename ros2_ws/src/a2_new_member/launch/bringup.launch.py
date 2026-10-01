@@ -1,7 +1,7 @@
-"""Composed bring-up: Neil's stack + student LPF node.
+"""Composed bring-up: Grader stack + student LPF node.
 
 Includes:
-  - a2_neil/neil.launch.py         (NOT namespaced — it owns /grader/*)
+  - a2_grader/grader.launch.py         (NOT namespaced — it owns /grader/*)
   - a2_new_member/lpf.launch.py      (pushed under /<github_user>)
 
 Usage:
