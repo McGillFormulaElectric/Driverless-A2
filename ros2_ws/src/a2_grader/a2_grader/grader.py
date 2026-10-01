@@ -14,7 +14,7 @@ Feedback is published on /grader/feedback (std_msgs/String) as either:
 The message is only republished when a student transitions between states.
 
 params: alpha, match_window, mse_tolerance, discovery_period_s, grade_period_s
-        (see a2_neil/config/params.yaml).
+        (see a2_grader/config/params.yaml).
 """
 from __future__ import annotations
 
@@ -55,7 +55,7 @@ class Grader(Node):
     def __init__(self):
         super().__init__('grader')
 
-        # Scenario parameters (see a2_neil/config/params.yaml).
+        # Scenario parameters (see a2_grader/config/params.yaml).
         self.declare_parameter('alpha', 0.1)
         self.declare_parameter('match_window', 200)
         self.declare_parameter('mse_tolerance', 0.02)
