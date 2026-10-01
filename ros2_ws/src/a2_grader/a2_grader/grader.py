@@ -131,9 +131,14 @@ class Grader(Node):
     def _make_hello_cb(self, user: str):
         def _cb(msg: String) -> None:
             state = self._hello[user]
-            verdict = 'correct' if msg.data == 'Hello World!' else 'incorrect'
-            state.last_verdict = verdict
-            self._publish_feedback(user, verdict)
+            if msg.data == 'Hello World!':
+                feedback_text = f'Hello {user}, I see your hello world'
+                self._publish_custom_feedback(feedback_text)
+                state.last_verdict = 'correct'
+            else:
+                feedback_text = f'Sorry {user}, expected "Hello World!" but got "{msg.data}"'
+                self._publish_custom_feedback(feedback_text)
+                state.last_verdict = 'incorrect'
         return _cb
 
     # --- A2.2 --------------------------------------------------------------
@@ -169,6 +174,13 @@ class Grader(Node):
             self._publish_feedback(user, verdict, extra=f'(MSE={mse:.4f})')
 
     # --- feedback ----------------------------------------------------------
+    def _publish_custom_feedback(self, text: str) -> None:
+        """Publish custom feedback text."""
+        msg = String()
+        msg.data = text
+        self.feedback_pub.publish(msg)
+        self.get_logger().info(text)
+
     def _publish_feedback(self, user: str, verdict: str, extra: str = '') -> None:
         if verdict == 'correct':
             text = f'Congrats {user}, the answer is correct'
