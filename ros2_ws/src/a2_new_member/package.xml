@@ -10,8 +10,8 @@
   <depend>rclpy</depend>
   <depend>std_msgs</depend>
 
-  <!-- bringup.launch.py includes neil.launch.py; only needed at runtime. -->
-  <exec_depend>a2_neil</exec_depend>
+  <!-- bringup.launch.py can optionally include grader.launch.py; only needed at runtime. -->
+  <exec_depend>a2_grader</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>

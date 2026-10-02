@@ -25,7 +25,7 @@ git checkout <FirstNameLastName>
 ```
 
 ### 1.2 Docker & Local Grading
-The grader runs as a local service inside Docker alongside your student code. Both use host networking and ROS domain ID 42 for automatic DDS discovery.
+The grader and student workspace run inside Docker using ROS domain ID 42 with local DDS discovery.
 
 ```bash
 cd docker
@@ -33,28 +33,26 @@ docker compose -f docker-compose-local.yml build
 docker compose -f docker-compose-local.yml up -d
 ```
 
-This starts two services:
-1. **student** — your code (subscriber + publisher)
-2. **grader** — reference implementation (signal publisher + grader)
+This starts the container, builds your workspace, and runs the reference signal publisher and auto-grader in the background.
 
-Both services share the same network and ROS domain, so topics auto-discover via DDS.
+Open a shell inside the container to work on your assignment:
+```bash
+docker compose -f docker-compose-local.yml exec a2 bash
+```
 
-Inside either container, the workspace is mounted at `/workspace` (your `ros2_ws`). Build and source:
-
+Inside the container, the workspace is mounted at `/workspace` (your `ros2_ws`). Build and source:
 ```bash
 cd /workspace
 colcon build --symlink-install
 source install/setup.bash
 ```
 
-View logs from either service:
+View grader logs at any time from another terminal:
 ```bash
-docker compose -f docker-compose-local.yml logs student -f  # tail student logs
-docker compose -f docker-compose-local.yml logs grader -f   # tail grader logs
-docker compose -f docker-compose-local.yml logs             # both services
+docker compose -f docker-compose-local.yml logs -f
 ```
 
-Stop everything:
+Stop everything when done:
 ```bash
 docker compose -f docker-compose-local.yml down
 ```
@@ -178,17 +176,20 @@ You should see the green (filtered) curve tracking the low-frequency component o
 ```
 Driverless-A2/
 ├── docker/
-│   ├── docker-compose-local.yml  # Two services: student + grader
-│   ├── Dockerfile                # ROS2 Humble + dependencies
-│   ├── entrypoint.sh             # Startup script (socket buffer config)
-│   └── cyclonedds.xml            # DDS discovery config
+│   ├── docker-compose-local.yml  # Local grading container service
+│   └── Dockerfile                # ROS2 Humble + dependencies
 ├── ros2_ws/
 │   └── src/
 │       ├── a2_new_member/        # your template — write code here
-│       └── a2_grader/            # grader (runs as local service in docker-compose)
-│           ├── a2_grader/        # Python package
+│       │   ├── a2_new_member/    # Python nodes (hello_publisher, lpf_node)
+│       │   ├── config/           # params.yaml
+│       │   ├── launch/           # bringup, hello, and lpf launch files
+│       │   ├── setup.py
+│       │   └── package.xml
+│       └── a2_grader/            # grader (runs as background service)
+│           ├── a2_grader/        # Python package (signal_publisher, grader)
 │           ├── config/           # params.yaml
-│           ├── launch/           # neil.launch.py
+│           ├── launch/           # grader.launch.py
 │           ├── setup.py
 │           └── package.xml
 └── README.md

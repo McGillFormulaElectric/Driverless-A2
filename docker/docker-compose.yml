@@ -5,10 +5,12 @@ services:
     build:
       context: .
     image: mfe/a2:humble
-    network_mode: "host"
     environment:
+      - ROS_LOCALHOST_ONLY=1
       - ROS_DOMAIN_ID=42
-      - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+      - GITHUB_USER=${GITHUB_USER:-student}
+    ports:
+      - "8765:8765"
     volumes:
       - ../ros2_ws:/workspace
     working_dir: /workspace
@@ -18,7 +20,5 @@ services:
         colcon build --symlink-install &&
         source install/setup.bash &&
         ros2 launch a2_grader grader.launch.py &
-        sleep 3 &&
-        ros2 run a2_new_member hello_publisher --ros-args -r __ns:=/student &
-        ros2 launch a2_new_member lpf.launch.py github_user:=student
+        sleep infinity
       "

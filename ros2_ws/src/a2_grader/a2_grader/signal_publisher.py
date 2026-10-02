@@ -26,7 +26,7 @@ class SignalPublisher(Node):
     def __init__(self):
         super().__init__('signal_publisher')
 
-        # Scenario parameters (see a2_neil/config/params.yaml).
+        # Scenario parameters (see a2_grader/config/params.yaml).
         self.declare_parameter('signal_hz', 20.0)
         self.declare_parameter('f1', 0.5)
         self.declare_parameter('a1', 1.0)

@@ -3,6 +3,8 @@
 Usage:
     ros2 launch a2_new_member hello.launch.py github_user:=<your-handle>
 """
+import os
+
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
@@ -14,6 +16,7 @@ def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument(
             'github_user',
+            default_value=os.environ.get('GITHUB_USER', 'student'),
             description='Your GitHub username; used as the ROS namespace.',
         ),
         Node(
