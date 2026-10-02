@@ -18,15 +18,16 @@ RELIABLE_QOS = QoSProfile(
 
 class HelloPublisher(Node):
     def __init__(self):
-        super().__init__('hello_publisher')
+        super().__init__('hello_publisher') # node name
         self.pub = self.create_publisher(String, 'hello', RELIABLE_QOS)
         self.timer = self.create_timer(1.0, self._tick)
         ns = self.get_namespace()
         self.get_logger().info(f"Publishing 'Hello World!' on {ns}/hello")
 
     def _tick(self):
-        # TODO(new_member): create a String message, set msg.data = 'Hello World!', and publish it
-        pass
+        msg = String()
+        msg.data = "Hello World!"
+        self.pub.publish(msg)
 
 
 def main():

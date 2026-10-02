@@ -60,7 +60,8 @@ class LowPassFilterNode(Node):
         #   y[n] = self.alpha * x[n] + (1 - self.alpha) * y[n - 1]
         #
         # ------------------------------------------------------------------
-        y = x  # <-- replace this stub with the correct expression
+        
+        y = self.alpha * x + (1 - self.alpha) * (self._y_prev or 0) #x  # <-- replace this stub with the correct expression
 
         self._y_prev = y
 
