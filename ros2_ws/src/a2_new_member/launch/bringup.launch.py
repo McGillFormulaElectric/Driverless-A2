@@ -20,8 +20,8 @@ from launch_ros.actions import PushRosNamespace
 def generate_launch_description():
     github_user = LaunchConfiguration('github_user')
 
-    neil_launch = os.path.join(
-        get_package_share_directory('a2_grader'), 'launch', 'neil.launch.py'
+    grader_launch = os.path.join(
+        get_package_share_directory('a2_grader'), 'launch', 'grader.launch.py'
     )
     student_launch = os.path.join(
         get_package_share_directory('a2_new_member'), 'launch', 'lpf.launch.py'
@@ -30,7 +30,7 @@ def generate_launch_description():
     neil_group = GroupAction([
         # Neil's nodes publish on absolute topics (/grader/signal,
         # /grader/feedback) and must NOT be namespaced.
-        IncludeLaunchDescription(PythonLaunchDescriptionSource(neil_launch)),
+        IncludeLaunchDescription(PythonLaunchDescriptionSource(grader_launch)),
     ])
 
     student_group = GroupAction([
