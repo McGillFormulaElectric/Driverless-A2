@@ -7,7 +7,7 @@ This assignment introduces ROS 2 publishers, subscribers, namespaces, and DDS di
 
 Everything runs inside a Docker container using `docker-compose-local.yml`.
 
-> **Grading Setup** — The grader runs as a local Docker service alongside your student code. Both use host networking and ROS domain ID 42 for automatic DDS discovery.
+> **Grading Setup** — The grader and student node run in one local Docker container on ROS domain ID 42. No remote grader or host networking is required.
 
 ---
 
@@ -25,7 +25,7 @@ git checkout <FirstNameLastName>
 ```
 
 ### 1.2 Docker & Local Grading
-The grader runs as a local service inside Docker alongside your student code. Both use host networking and ROS domain ID 42 for automatic DDS discovery.
+The grader and student node run in one Docker container, on the same local ROS graph. The container uses ROS domain ID 42 and restricts discovery to its local network namespace.
 
 ```bash
 cd docker
@@ -33,13 +33,9 @@ docker compose -f docker-compose-local.yml build
 docker compose -f docker-compose-local.yml up -d
 ```
 
-This starts two services:
-1. **student** — your code (subscriber + publisher)
-2. **grader** — reference implementation (signal publisher + grader)
+This starts one service, `a2`, which builds the workspace and launches the local grader and your A2.2 filter. The A2.1 hello publisher can be launched separately using the instructions below.
 
-Both services share the same network and ROS domain, so topics auto-discover via DDS.
-
-Inside either container, the workspace is mounted at `/workspace` (your `ros2_ws`). Build and source:
+Inside the container, the workspace is mounted at `/workspace` (your `ros2_ws`). Build and source:
 
 ```bash
 cd /workspace
@@ -49,9 +45,7 @@ source install/setup.bash
 
 View logs from either service:
 ```bash
-docker compose -f docker-compose-local.yml logs student -f  # tail student logs
-docker compose -f docker-compose-local.yml logs grader -f   # tail grader logs
-docker compose -f docker-compose-local.yml logs             # both services
+docker compose -f docker-compose-local.yml logs -f a2       # grader and student logs
 ```
 
 Stop everything:
@@ -178,7 +172,7 @@ You should see the green (filtered) curve tracking the low-frequency component o
 ```
 Driverless-A2/
 ├── docker/
-│   ├── docker-compose-local.yml  # Two services: student + grader
+│   ├── docker-compose-local.yml  # One local grader + student container
 │   ├── Dockerfile                # ROS2 Humble + dependencies
 │   ├── entrypoint.sh             # Startup script (socket buffer config)
 │   └── cyclonedds.xml            # DDS discovery config
@@ -225,3 +219,20 @@ Scenario constants are exposed as ROS parameters loaded from YAML at launch time
 
 Launch files automatically load parameters via the `parameters=[...]` argument.
 
+---
+
+## 🔴 NEIL REFERENCE
+
+**To view complete solutions for this assignment:**
+
+```bash
+# View the reference implementation on the solution branch
+git checkout solution/a2-personalized-hello
+
+# Or clone directly from the solution branch for testing
+git clone -b solution/a2-personalized-hello <repo-url>
+```
+
+**Solution Branch Reference:** [`solution/a2-personalized-hello`](https://github.com/McGillFormulaElectric/Driverless-A2/tree/solution/a2-personalized-hello)
+
+**Pull Request:** [PR #3 - A2 Solution](https://github.com/McGillFormulaElectric/Driverless-A2/pull/3)
