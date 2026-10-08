@@ -61,7 +61,7 @@ class LowPassFilterNode(Node):
         #
         # ------------------------------------------------------------------
         if self._y_prev is None: y = x # y[0] = x[0]
-        else: y = x * self.alpha + (1. - self.alpha) * self._y_prev
+        else: y = x * self.alpha * (1. - self.alpha) * self._y_prev
 
         self._y_prev = y
 
