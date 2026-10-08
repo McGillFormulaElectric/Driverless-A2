@@ -67,6 +67,12 @@ docker compose -f docker-compose-local.yml down
 Open `ros2_ws/src/a2_new_member/a2_new_member/hello_publisher.py`. The node, publisher, and timer are already wired up — there's a `TODO` block inside `_tick` where you build and publish a `std_msgs/String`. If you're new to ROS 2 publishers, see the [ROS2 Industrial Workshop — Simple Publisher/Subscriber](https://ros2-industrial-workshop.readthedocs.io/en/latest/_source/basics/ROS2-Simple-Publisher-Subscriber.html). Then launch it with your GitHub username as the ROS namespace:
 
 ```bash
+source /opt/ros/humble/setup.bash
+```
+
+then
+
+```bash
 ros2 launch a2_new_member hello.launch.py github_user:=$GITHUB_USER
 ```
 

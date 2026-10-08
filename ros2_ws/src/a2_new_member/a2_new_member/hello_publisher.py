@@ -26,7 +26,9 @@ class HelloPublisher(Node):
 
     def _tick(self):
         # TODO(new_member): create a String message, set msg.data = 'Hello World!', and publish it
-        pass
+        msg = String()
+        msg.data = "Hello World!"
+        self.pub.publish(msg)
 
 
 def main():
