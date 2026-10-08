@@ -33,7 +33,7 @@ docker compose -f docker-compose-local.yml build
 docker compose -f docker-compose-local.yml up -d
 ```
 
-This starts one service, `a2`, which builds the workspace and launches the local grader and your A2.2 filter. The A2.1 hello publisher can be launched separately using the instructions below.
+This starts one service, `a2`, which builds the workspace and launches the local grader plus your A2.1 hello publisher and A2.2 filter.
 
 Inside the container, the workspace is mounted at `/workspace` (your `ros2_ws`). Build and source:
 
@@ -43,9 +43,14 @@ colcon build --symlink-install
 source install/setup.bash
 ```
 
-View logs from either service:
+View the grader feedback. The LPF node logs every sample, so filter those lines out (Ctrl+C stops following; the container keeps running):
 ```bash
-docker compose -f docker-compose-local.yml logs -f a2       # grader and student logs
+docker compose -f docker-compose-local.yml logs -f | grep -v "LPF:"
+```
+
+After editing your code, restart the container to rebuild and relaunch everything:
+```bash
+docker compose -f docker-compose-local.yml restart a2
 ```
 
 Stop everything:
